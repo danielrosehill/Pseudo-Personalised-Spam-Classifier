@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/danielrosehill/Pseudo-Personalised-Spam-Classifier/schema/email-record.schema.json",
+  "title": "EmailRecord",
+  "description": "One pseudonymised email in the Pseudo-Personalised-Spam-Classifier dataset (one JSON object per line in data/emails.jsonl). Contains no real identifiers; see docs/pseudonymisation.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "schema_version", "channel", "received_month", "subject", "body_text", "label", "subtype", "campaign_group", "annotation", "pii_review"],
+  "properties": {
+    "id": { "type": "string", "format": "uuid", "description": "Fresh UUID; never a Gmail message/thread ID." },
+    "schema_version": { "const": "1" },
+    "channel": { "enum": ["contact_form", "github", "direct", "business_site", "other"] },
+    "received_month": { "type": "string", "pattern": "^\\d{4}-(0[1-9]|1[0-2])$", "description": "YYYY-MM only." },
+    "language": { "type": "string", "default": "en", "description": "BCP-47 primary tag." },
+    "subject": { "type": "string", "description": "Pseudonymised subject. Empty string if none." },
+    "body_text": { "type": "string", "minLength": 1, "description": "Pseudonymised visible body text, quoted replies stripped." },
+    "label": { "enum": ["genuine", "pseudo_personalised"] },
+    "subtype": {
+      "enum": [
+        "scraped_flattery_pitch", "sponsorship_brand_pitch", "service_offer", "link_or_content_request", "tool_trial_push", "other_pp",
+        "project_question", "collaboration", "testing_request", "media_or_speaking", "personal_contact", "other_genuine"
+      ]
+    },
+    "campaign_group": { "type": "string", "description": "Pseudonymous group key; rows from the same sender org/campaign share it. Used for grouped CV splits." },
+    "header_features": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Derived from raw headers before they were discarded. Optional; omitted if not computed.",
+      "properties": {
+        "has_list_unsubscribe": { "type": "boolean" },
+        "sender_domain_age_days_bucket": { "enum": ["<90", "90-365", ">365", "unknown"] },
+        "tracking_link_present": { "type": "boolean" },
+        "link_count": { "type": "integer", "minimum": 0 },
+        "calendar_link_present": { "type": "boolean" },
+        "reply_to_differs_from_from": { "type": "boolean" },
+        "sender_mailbox_provider": { "enum": ["google", "microsoft", "other", "unknown"] },
+        "has_attachments": { "type": "boolean" },
+        "html_only": { "type": "boolean" }
+      }
+    },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["annotator", "date", "confidence"],
+      "properties": {
+        "annotator": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "confidence": { "enum": ["sure", "unsure"], "description": "unsure rows are excluded from training/eval until re-reviewed." },
+        "swap_test_passes": { "type": "boolean", "description": "True if the message still reads naturally with the recipient/project details swapped (evidence for pseudo_personalised)." },
+        "notes": { "type": "string", "description": "Free text; must itself contain no real identifiers." }
+      }
+    },
+    "pii_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "reviewed", "reviewer", "date"],
+      "properties": {
+        "method": { "const": "pseudonymise-v1", "description": "Version of the procedure in docs/pseudonymisation.md." },
+        "reviewed": { "const": true, "description": "Rows may not be committed unless manually reviewed." },
+        "reviewer": { "type": "string" },
+        "date": { "type": "string", "format": "date" }
+      }
+    }
+  }
+}

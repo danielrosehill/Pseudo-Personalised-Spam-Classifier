@@ -1,0 +1,39 @@
+{
+  "name": "Pseudo-Personalised-Spam-Classifier",
+  "github": "danielrosehill/Pseudo-Personalised-Spam-Classifier",
+  "visibility": "public",
+  "local_path": "~/repos/github/ai-models/Pseudo-Personalised-Spam-Classifier",
+  "created": "2026-10-16",
+  "status": "planning",
+  "status_date": "2026-10-16",
+  "task": "Binary text classification: genuine stranger email vs pseudo-personalised mass outreach (AI-era templated pitches and low-effort sponsorship asks that evade bulk-mail heuristics)",
+  "labels": ["genuine", "pseudo_personalised"],
+  "label_scheme": "binary model; 12 annotated subtype tags kept as metadata (docs/spec.md#labels)",
+  "base_model": null,
+  "base_model_candidates": [
+    "BAAI/bge-small-en-v1.5 (SetFit)",
+    "sentence-transformers/all-MiniLM-L6-v2 (SetFit)",
+    "jhu-clsp/ettin-encoder-68m",
+    "answerdotai/ModernBERT-base"
+  ],
+  "dataset": {
+    "target_size_poc": 100,
+    "target_split_poc": "~50/50 genuine vs pseudo_personalised",
+    "rows_collected": 0,
+    "public": true,
+    "pii_method": "pseudonymisation (replace, not redact) — docs/pseudonymisation.md",
+    "row_schema": "schema/email-record.schema.json"
+  },
+  "hf_resources": [],
+  "hf_resources_note": "No Hugging Face models or datasets exist for this project; danielrosehill's full Hub listing checked 2026-10-16.",
+  "related": [
+    { "kind": "consumer", "description": "A separate (private) agentic email-gatekeeper research project; it would call this classifier as one check after allow-list, prior-contact and header pre-filters." }
+  ],
+  "context": {
+    "voice_note": "context/voice-note.mp3",
+    "transcript_raw": "context/transcript-raw.txt",
+    "transcript_engine": "AssemblyAI universal",
+    "transcribed": "2026-10-16"
+  },
+  "next_step": "Phase 0: write label guide, export ~100 candidate emails off-repo, run PII pass (docs/development-plan.md)"
+}
