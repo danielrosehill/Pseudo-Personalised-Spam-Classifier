@@ -90,6 +90,25 @@ features, so no raw header value needs to be published:
 | `has_attachments` | bool | |
 | `html_only` | bool | |
 
+### Dataset views (decided 2026-10-20)
+
+Which input format works best is an open Phase 1 question, so each row carries
+several **views** of the same message, all pseudonymised by the same per-message
+mapping. Only `subject` and `body_text` are required; the others are present when
+the raw MIME was available.
+
+| Field | Content |
+|---|---|
+| `body_text` | Canonical text: `body_plain` if present, otherwise `body_html_text` |
+| `body_plain` | The text/plain part as sent |
+| `body_html` | The text/html part as sent, with tracking pixels and hosts pseudonymised |
+| `body_html_text` | Visible text of the HTML (hidden elements removed) |
+| `headers` | Selected headers (`From`, `Reply-To`, `To`, `Subject`, `Date`, `List-*`, `Precedence`, `Auto-Submitted`, `X-Mailer`, `User-Agent`, `Content-Type`, `Feedback-ID`), pseudonymised. `Received`, DKIM/ARC, `Message-ID` and IPs are still dropped |
+| `header_features` | As above; derived before pseudonymisation |
+
+The Phase 1 ablation compares: body only, subject + body, + `header_features`,
++ pseudonymised `headers` text, and HTML vs plain.
+
 ## Output contract
 
 The service returns JSON. Field names are stable, and new fields are added rather

@@ -72,8 +72,10 @@ must score at chance.
 | `channel` | Kept as is (`contact_form`, `github`, `direct`, `business_site`) |
 | `received_month` | Kept at month precision (`2026-10`), never as the full timestamp |
 | `header_features` | Kept. Derived values only, no raw headers |
-| `From`, `Reply-To`, `Return-Path`, `Message-ID`, `Received`, DKIM/ARC, IPs | **Dropped** after the features have been derived |
-| `X-Mailer`, `User-Agent` | Dropped. They could be reduced to a coarse `sender_mailbox_provider` feature, but that feature is expected to be weak |
+| `From`, `Reply-To`, `To`, `List-*`, `Feedback-ID` | Kept in the optional `headers` view, **pseudonymised** with the same per-message mapping as the body (decided 2026-10-20; see `spec.md#dataset-views-decided-2026-10-20`) |
+| `Return-Path`, `Message-ID`, `Received`, DKIM/ARC, IPs | **Dropped** after the features have been derived |
+| `X-Mailer`, `User-Agent` | Kept in `headers` (they name software, not people); version strings that identify a single sender are pseudonymised |
+| HTML body | Kept as `body_html`; every host, tracking path and image URL is pseudonymised, and the visible text must match `body_html_text` |
 | Attachments | Dropped. Only `has_attachments` is kept |
 | Inline images and tracking pixels | Dropped. `tracking_link_present` covers the signal |
 | Gmail message ID or thread ID | Dropped. A fresh UUID is assigned as `id` |
