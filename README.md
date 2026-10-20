@@ -18,7 +18,7 @@ with specific intent** from **a campaign wearing a personal mask**.
 
 Status: **planning**. Opened 2026-10-16 from a dictated voice note
 ([`context/`](context/)). No data has been collected and no model has been trained.
-No Hugging Face models or datasets exist for this project yet.
+Dataset: [`danielrosehill/pseudo-personalised-outreach`](https://huggingface.co/datasets/danielrosehill/pseudo-personalised-outreach) on Hugging Face, mirrored in [`data/emails.jsonl`](data/emails.jsonl). Seed release 2026-10-20: 18 rows (4 genuine, 14 pseudo-personalised), pseudonymised per [`docs/pseudonymisation.md`](docs/pseudonymisation.md). No model yet.
 
 ## Approach in one paragraph
 
