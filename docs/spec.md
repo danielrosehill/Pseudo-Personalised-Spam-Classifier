@@ -90,6 +90,27 @@ features, so no raw header value needs to be published:
 | `has_attachments` | bool | |
 | `html_only` | bool | |
 
+### Judge rationale and signal tags (decided 2026-10-20)
+
+Each row may carry a `judge` object: a small LLM's label, confidence, a list of
+**signal tags** and a 1–3 sentence rationale, produced **blind** to the human
+label. It explains *why* a message reads as pseudo-personalised or genuine, it lets
+the dataset be audited, and it is the zero-shot baseline in Phase 1. It is never
+the training target and never part of the model input.
+
+| Leans pseudo-personalised | Leans genuine |
+|---|---|
+| `profile_summary`, `ask_unrelated_to_hook`, `template_artifact`, `scraped_address`, `funnel_cta`, `campaign_followup`, `opt_out_line`, `commodity_ask`, `data_as_flattery`, `generic_hook`, `canned_install` | `engages_with_detail`, `admits_limits`, `proportionate_ask`, `idiosyncratic_voice`, `peer_builder`, `responsible_disclosure` |
+
+The deciding rule behind the tags: **the personal detail has to drive the ask.**
+An accurate, specific hook (for example one written by an LLM that researched the
+recipient) is still pseudo-personalised if the ask would be the same for anyone.
+That goes beyond the swap test above.
+
+A later version may predict the tags as an auxiliary multi-label head, so that the
+deployed classifier can say which features it saw. Those tags are a fixed enum, so
+this does not break the output contract's no-free-text rule.
+
 ### Dataset views (decided 2026-10-20)
 
 Which input format works best is an open Phase 1 question, so each row carries
