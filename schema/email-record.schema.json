@@ -106,6 +106,16 @@
         "pseudo_personalised"
       ]
     },
+    "mail_kind": {
+      "enum": [
+        "cold_outreach",
+        "support_or_report",
+        "product_drip",
+        "mass_mailing",
+        "crackpot"
+      ],
+      "description": "Separate axis from label (spec.md#mail-kind-mail_kind-annotated-optional). Absent means cold_outreach. Only cold_outreach and support_or_report rows train the binary model."
+    },
     "subtype": {
       "enum": [
         "scraped_flattery_pitch",

@@ -18,12 +18,32 @@ once each sub-type has at least about 30 rows.
 
 | Value | Definition | Decision test |
 |---|---|---|
-| `genuine` | Unsolicited mail from a real person with specific intent towards Daniel or his work. Whether AI helped write it is irrelevant. | The message **would not make sense** if sent unchanged to another recipient. It refers to a real detail and asks for something that follows from that detail. |
-| `pseudo_personalised` | Mass or templated outreach dressed up as a personal note, including low-effort brand, sponsorship and partnership pitches. | **Swap test:** replace the recipient's name, the project or channel mentioned, and the topic phrase with someone else's, and the message still reads naturally. The "personal" detail is decorative and does not lead to the ask. |
+| `genuine` | Unsolicited mail that a real person wrote to Daniel specifically. It may be commercial, unwanted or AI-assisted. A sponsorship offer, a PR pitch or a listing request is genuine if a person engaged with Daniel or his work to write it. | **Did a human in the loop write this for this recipient?** The detail drives the ask, and the ask follows from something real about Daniel or his work. |
+| `pseudo_personalised` | Outreach produced at scale and dressed up as a personal note: templates with filled-in slots, and LLM-researched hooks bolted onto a pitch that would be the same for anyone. | **Swap test**, plus: does the detail drive the ask? An accurate, non-swappable summary of Daniel's work is still pseudo-personalised if the ask would be identical for any recipient. |
 
 Out of scope, excluded from the dataset and handled by the pre-filter: classic
 spam, phishing, newsletters, notifications, and anything carrying list or bulk
 headers. The model is never asked about these.
+
+Decided 2026-10-20: wanting the mail is not part of the label. Whether a message is
+worth Daniel's time is a separate output. The annotator's labels showed that
+commercial but human-written pitches are `genuine`.
+
+### Mail kind (`mail_kind`, annotated, optional)
+
+This is a separate axis from `label`, added 2026-10-20. It records what sort of mail
+a row is, so automated mail that is not cold outreach can be kept and studied
+without teaching the binary model "automated" in place of "fake-personal".
+
+| Value | Meaning | In the binary training set? |
+|---|---|---|
+| `cold_outreach` | One-to-one or templated first contact about Daniel or his work | yes |
+| `support_or_report` | Bug report, correction, security disclosure | yes (normally `genuine`) |
+| `product_drip` | Onboarding, re-engagement, "founder note" or breakup mail from a product Daniel signed up to | no |
+| `mass_mailing` | Conference, CFP or programme invitation sent to a list | no |
+| `crackpot` | Conspiracy material or rants unrelated to Daniel's work | no |
+
+Rows without `mail_kind` are treated as `cold_outreach`.
 
 Annotator escape hatch: `annotation.confidence: "unsure"`. Unsure rows are kept in
 the file but excluded from training and evaluation until they have been
