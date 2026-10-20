@@ -3,6 +3,16 @@
 Draft, 2026-10-16. The dataset is going to be **public**, and this pass is what
 makes that possible.
 
+## Why this exists
+
+The point is to **protect the senders**. Even people who send unsolicited pitches
+should not be named and shamed in a public dataset. The recipient side is not
+anonymised: Daniel Rosehill, his companies (DSR Holdings, Carrot Cake AI), his
+public projects, channels and repos stay as written, because he is the publisher
+and the "personal" hook pointing at his work is the signal being studied. Which of
+his addresses a message reached is kept as a category (`recipient.kind`/`alias`),
+not as the full address.
+
 ## Principle: replace, never redact
 
 Bracket redaction (`[NAME]`, `[COMPANY]`) damages the training signal. The model
@@ -52,6 +62,8 @@ There are two goals, and they carry equal weight:
 | Postal addresses | A fake address in the same country | |
 | Social handles | A fake handle of similar length | |
 | Recipient (Daniel) | **Kept as `Daniel`.** The greeting is part of the pseudo-personalisation pattern, and Daniel is the publisher. His addresses become `daniel@recipient.example` | |
+| Daniel's companies (DSR Holdings, Carrot Cake AI) | **Kept** (recipient side) | |
+| Which address received it | Kept as `recipient.kind` + short `alias` (`public_contact/public`, `github/github`, `platform_alias/payments`, …), never the full address | |
 | Daniel's projects, channels, repos | **Kept**, because they are already public and the "personal" hook ("saw your repo X") is the core signal. Replace them only if the mention reveals something non-public | |
 | Third parties named in the body | Replace like sender names | |
 | Prices, dates, counts | Kept, unless one would identify the sender | |
@@ -83,6 +95,47 @@ must score at chance.
 If the Phase 1 ablation shows that header features add nothing, the published
 dataset still carries them, because they are cheap and harmless, but the model card
 states that they are unused.
+
+## Procedure as run (v1, 2026-10-20)
+
+The pass is a **custom, LLM-assisted transformation, not a trained anonymisation
+model**. The NER step in the pipeline above was skipped for v1. At 100–500 rows,
+rewriting one message at a time keeps the text more natural than detect-and-substitute.
+
+1. **Rewrite.** A small LLM (Claude Haiku) rewrites each message, following the
+   replacement rules above verbatim, with these working heuristics:
+   - fakes are odd but pronounceable invented words (`brindlepath`, `quillmoor`),
+     never a recognisable real company;
+   - the same real value maps to the same fake within a message and within a
+     sender's campaign;
+   - wording, typos, punctuation, line breaks, sign-off style, prices, counts and
+     dates are untouched;
+   - well-known platforms mentioned in passing (GitHub, npm, YouTube, Apple
+     Podcasts, Etsy, Zoom, Calendly, Discord) are kept; a big brand is replaced
+     only when it *is* the sender;
+   - tracking parameters become `utm_x=redacted`; opaque tokens become random
+     tokens of the same length and shape;
+   - home towns, venue names and similar local detail count as identifying.
+2. **Deterministic leak check.** For each row, a script extracts every sender name
+   part, address, domain, URL host and long digit run from the original and
+   searches for them in the rewrite. It also fails the row if a bracket placeholder
+   appears or if "Daniel" was removed. The rewriter loops until the check is clean.
+3. **Full human-style read of every row** by a separate reviewer (a larger model in
+   v1). This catches what the script cannot: third parties named only in prose,
+   and **unique combinations of facts** that identify a sender even with every
+   name replaced. Example from v1: a signature listing an unusual mix of
+   businesses and a venue's acreage was rewritten with different businesses.
+4. **Withhold** anything sent in confidence (for example, a private vulnerability
+   report for an unpatched issue) until it is safe to publish.
+5. **Discard the mapping.** Real→fake pairs are never written down, so the pass
+   cannot be reversed from published material.
+6. **Removal on request.** Anyone who recognises their message can ask for the row
+   to be removed via an issue on the GitHub repo.
+
+Known limits: the leak check covers only identifiers that appear in headers or as
+addresses and URLs. Prose-only names rely on the read in step 3. Prices and counts
+are kept, and a sufficiently distinctive one could still point to a sender; the
+step 3 read is where that gets judged.
 
 ## Consistency checks before commit
 

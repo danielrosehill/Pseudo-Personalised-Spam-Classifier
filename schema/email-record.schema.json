@@ -36,6 +36,32 @@
         "other"
       ]
     },
+    "recipient": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "alias"
+      ],
+      "description": "Which of the recipient's addresses the mail was sent to. Recipient-side, so not pseudonymised, but published as a category, never as a full address.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "public_contact",
+            "github",
+            "primary",
+            "platform_alias",
+            "other_alias",
+            "business",
+            "unknown"
+          ]
+        },
+        "alias": {
+          "type": "string",
+          "description": "Short alias name, e.g. public, github, daniel, payments, film_database, podcast_feed, or the business alias local part."
+        }
+      }
+    },
     "received_month": {
       "type": "string",
       "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",

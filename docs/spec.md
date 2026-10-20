@@ -126,6 +126,7 @@ the raw MIME was available.
 | `body_html_text` | Visible text of the HTML (hidden elements removed) |
 | `headers` | Selected headers (`From`, `Reply-To`, `To`, `Subject`, `Date`, `List-*`, `Precedence`, `Auto-Submitted`, `X-Mailer`, `User-Agent`, `Content-Type`, `Feedback-ID`), pseudonymised. `Received`, DKIM/ARC, `Message-ID` and IPs are still dropped |
 | `header_features` | As above; derived before pseudonymisation |
+| `recipient` | `{kind, alias}`: which of the recipient's addresses got the mail (`public_contact`, `github`, `primary`, `platform_alias` such as payments/film database/podcast feed, `business`). In the seed set every `platform_alias` message was pseudo-personalised, because those addresses exist only on third-party platforms and are harvested from there. A candidate input feature |
 
 The Phase 1 ablation compares: body only, subject + body, + `header_features`,
 + pseudonymised `headers` text, and HTML vs plain.
